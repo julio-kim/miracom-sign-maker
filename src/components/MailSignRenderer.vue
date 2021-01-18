@@ -286,7 +286,7 @@ export default {
 
             for (let id of selectedTemplates) {
                 const targetEle = document.querySelector(`[refid=${id}]`)
-                let width = targetEle.offsetWidth + 10
+                let width = targetEle.offsetWidth
                 let height = targetEle.offsetHeight
 
                 this.renderingText = `${this.getTemplateText(id)} Rendering...`
