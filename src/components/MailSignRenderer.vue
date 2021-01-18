@@ -82,19 +82,6 @@
                             </div>
                         </div>
                     </div>
-                    <!--
-                    <div class="ui sel-template segment">
-                        <div class="ui secondary vertical fluid menu">
-                            <div v-for="template in templates" :key="template.id" class="item"
-                                :class="isActiveTemplate(template)"
-                                @click="template.active = !template.active">
-                                <i v-if="template.inverted" class="circle icon" :class="template.colored"></i>
-                                {{ template.name }}
-                                {{ getTemplateSubName(template.colorVariation) }}
-                            </div>
-                        </div>
-                    </div>
-                    -->
                 </div>
                 <div class="fluid ui primary button" @click="createDataUrls">
                     <i class="icon address card"></i>메일서명 생성 (Image DataURL)
@@ -177,7 +164,7 @@ export default {
             canvas: {},
             signInfo: {
                 name: undefined,
-                deaprtment: undefined,
+                department: undefined,
                 homepage: undefined,
                 phone: undefined,
                 email: undefined,
