@@ -1,4 +1,4 @@
-# hello-electron
+# miracom-sign-maker
 
 ## Project setup
 ```
