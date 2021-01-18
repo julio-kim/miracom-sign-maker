@@ -8,17 +8,17 @@
                     </div>
                 </div>
             </div>
-            <div class="four wide column"><h3 class="ui header" :class="headerStyle">{{ name }}</h3></div>
-            <div class="twelve wide column">{{ department }}</div>
+            <div class="four wide column"><h3 class="ui header nanum_myeongjo_name" :class="nameStyle">{{ name }}</h3></div>
+            <div class="twelve wide column" :class="deptStyle">{{ department }}</div>
             <div class="four wide column">
                 <div class="ui image">
                     <img :src="qrSrc" />
                 </div>
             </div>
-            <div class="twelve wide column middle alignedd">
-                <i class="small home icon"></i> {{ homepage }}<br/>
-                <i class="small phone icon"></i> {{ phone }}<br/>
-                <i class="small envelope outline icon"></i> {{ email }}
+            <div class="twelve wide column middle aligned details">
+                <i class="small home icon "></i> <span class="text">{{ homepage }}</span><br/>
+                <i class="small phone icon"></i> <span class="text">{{ phone }}</span><br/>
+                <i class="small envelope outline icon"></i> <span class="text">{{ email }}</span>
             </div>
         </div>
     </div>
@@ -50,6 +50,10 @@ export default {
         email: {
             type: String,
             default: 'gd.hong@miracom.co.kr'
+        },
+        font: {
+            type: String,
+            default: 'nanum_gothic'
         },
         inverted: {
             type: Boolean,
@@ -85,6 +89,14 @@ export default {
         headerStyle () {
             return (this.inverted) ? 'inverted' : ''
         },
+        nameStyle () {
+            let styles = [this.font]
+            if (this.inverted) styles.push('inverted')
+            return styles
+        },
+        deptStyle () {
+            return this.font
+        },
         logoSrc () {
             if (this.logoVariation) return './assets/logos/miracom_logo_black.png'
             else {
@@ -104,5 +116,20 @@ export default {
 .template.segment {
     box-shadow: none !important;
     border-radius: 1.285714rem !important;
+}
+
+.nanum_gothic {
+    font-family: 'NanumGothic-Regular';
+}
+.nanum_myeongjo {
+    font-family: 'NanumMyeongjo-Regular';
+}
+
+.column.details {
+    font-family: 'malgun gothic';
+    font-weight: 100;
+}
+.column.details .text{
+    font-size: 0.9rem;
 }
 </style>

@@ -46,17 +46,43 @@
                         </div>
                     </div>
                 </div>
-                <div class="field" :class="validEmail">
-                    <label>이메일</label>
-                    <div class="ui corner labeled input">
-                        <input type="text" placeholder="이메일을 입력해 주세요" v-model="signInfo.email" />
-                        <div class="ui corner label">
-                            <i class="asterisk icon"></i>
+                <div class="two fields">
+                    <div class="field" :class="validEmail">
+                        <label>이메일</label>
+                        <div class="ui corner labeled input">
+                            <input type="text" placeholder="이메일을 입력해 주세요" v-model="signInfo.email" />
+                            <div class="ui corner label">
+                                <i class="asterisk icon"></i>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="field">
+                        <label>폰트 선택</label>
+                        <div class="ui fluid selection dropdown" ref="fontSel">
+                            <input type="hidden" name="fonts" value="F01" />
+                            <i class="dropdown icon"></i>
+                            <div class="default text">Select Font</div>
+                            <div class="menu">
+                                <div v-for="font in fonts" :key="font.id" class="item" :class="font.className" :data-value="font.id">{{ font.name }}</div>
+                            </div>
                         </div>
                     </div>
                 </div>
                 <div class="field">
                     <label>서식 선택 (메일서명을 생성할 때에는 최대 5개까지만 선택해주세요)</label>
+                    <div class="ui fluid multiple selection dropdown" ref="tempSel">
+                        <input type="hidden" name="templates" value="T01,T02,T03,T04,T05" />
+                        <i class="dropdown icon"></i>
+                        <div class="default text">Select Template</div>
+                        <div class="menu">
+                            <div v-for="template in templates" :key="template.id" class="item" :data-value="template.id">
+                                {{ template.name }}
+                                {{ getTemplateSubName(template.colorVariation) }}
+                                <a v-if="!!template.colored" class="ui empty circular label" :class="template.colored" style="margin-bottom: -1px; margin-left: 5px;"></a>
+                            </div>
+                        </div>
+                    </div>
+                    <!--
                     <div class="ui sel-template segment">
                         <div class="ui secondary vertical fluid menu">
                             <div v-for="template in templates" :key="template.id" class="item"
@@ -68,6 +94,7 @@
                             </div>
                         </div>
                     </div>
+                    -->
                 </div>
                 <div class="fluid ui primary button" @click="createDataUrls">
                     <i class="icon address card"></i>메일서명 생성 (Image DataURL)
@@ -87,6 +114,7 @@
                         :homepage="checkBlank(signInfo.homepage)"
                         :phone="checkBlank(signInfo.phone)"
                         :email="checkBlank(signInfo.email)"
+                        :font="getFont()"
 
                         :inverted="template.inverted"
                         :colored="template.colored"
@@ -135,9 +163,13 @@ import html2canvas from 'html2canvas'
 import { saveAs } from 'file-saver'
 import lodash from 'lodash'
 import moment from 'moment'
+import Toastify from 'toastify-js'
+import $ from 'jquery'
+import 'semantic-ui-css'
 
 import MailSignTemplate from './MailSignTemplate.vue'
 import { templates } from '../models/TemplateModel'
+import { fonts } from '../models/FontModel'
 
 export default {
     data () {
@@ -148,7 +180,7 @@ export default {
                 deaprtment: undefined,
                 homepage: undefined,
                 phone: undefined,
-                email: undefined
+                email: undefined,
             },
             valid: {
                 name: false,
@@ -157,6 +189,7 @@ export default {
                 email: false,
             },
             templates,
+            fonts,
             isRendering: false,
             renderingText: 'Prepare Rendering...',
             isIE: /*@cc_on!@*/false || !!document.documentMode
@@ -185,8 +218,30 @@ export default {
             return this.valid.email ? 'error' : ''
         }
     },
+    mounted () {
+        $(this.$refs.tempSel).dropdown({
+            onChange: (value) => {
+                let selectedTemplates = value.split(',')
+                this.templates.forEach(template => {
+                    if (selectedTemplates.indexOf(template.id) > -1) template.active = true
+                    else template.active = false
+                })
+            }
+        })
+        $(this.$refs.fontSel).dropdown({
+            onChange: (value) => {
+                this.fonts.forEach(font => {
+                    if (font.id === value) font.active = true
+                    else font.active = false
+                })
+            }
+        })
+    },
     methods: {
         checkBlank: (str) => lodash.isEmpty(str) ? undefined : str,
+        getFont () {
+            return this.fonts.filter(font => font.active)[0].className
+        },
         isEnableButtonSet (id, checkIE = false) {
             if (checkIE) return (this.isIE) ? 'disabled' : (this.canvas[id] === undefined) ? 'disabled' : ''
             else return (this.canvas[id] === undefined) ? 'disabled' : ''
@@ -200,15 +255,39 @@ export default {
             return this.valid.name || this.valid.department || this.valid.phone || this.valid.email
         },
         async createDataUrls () {
-            if (this.validateForm()) return;
+            if (this.validateForm()) {
+                Toastify({
+                    text: '필수 입력 필드를 채워주세요',
+                    duration: 5000,
+                    newWindow: true,
+                    gravity: 'top',
+                    position: 'right',
+                    backgroundColor: "linear-gradient(to right, #ff5f6d, #ffc371)",
+                }).showToast()
+                return;
+            }
 
             if (this.activeTemplates.length > 5) {
-                alert('렌더링 서식 선택은 5개 이하로 선택해 주세요')
+                Toastify({
+                    text: '렌더링 서식 선택은 5개 이하로 선택해 주세요',
+                    duration: 5000,
+                    newWindow: true,
+                    gravity: 'top',
+                    position: 'right',
+                    backgroundColor: "linear-gradient(to right, #ff5f6d, #ffc371)",
+                }).showToast()
                 return;
             }
 
             if (this.activeTemplates.length === 0) {
-                alert('렌더링 서식을 1개 이상 선택해주세요')
+                Toastify({
+                    text: '렌더링 서식을 1개 이상 선택해주세요',
+                    duration: 5000,
+                    newWindow: true,
+                    gravity: 'top',
+                    position: 'right',
+                    backgroundColor: "linear-gradient(to right, #ff5f6d, #ffc371)",
+                }).showToast()
                 return;
             }
 
@@ -296,4 +375,12 @@ export default {
 .dimmer {
     overflow: hidden;
 }
+
+.nanum_gothic {
+    font-family: 'NanumGothic-Regular';
+}
+.nanum_myeongjo {
+    font-family: 'NanumMyeongjo-Regular';
+}
+
 </style>

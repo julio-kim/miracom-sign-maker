@@ -3,7 +3,6 @@
         <div class="ui inverted vertical masthead center aligned segment">
             <div class="ui text container">
                 <h1 class="ui inverted header">SignMaker</h1>
-                <h2>Semantic UI 기반의 HTML을 렌더링하고 Image DataURL을 생성합니다</h2>
             </div>
         </div>
 
@@ -68,11 +67,11 @@ export default {
 
 <style scoped>
 .masthead.segment {
-    min-height: 250px;
+    min-height: 100px;
     padding: 1em 0em;
 }
 .masthead h1.ui.header {
-    margin-top: 1em;
+    margin-top: 0.1em;
     margin-bottom: 0em;
     font-size: 3em;
     font-weight: normal;
